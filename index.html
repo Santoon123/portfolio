@@ -3,329 +3,397 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Santoon Kumar Panda | Portfolio</title>
+        <title>Santoon Kumar Panda</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
         <script src="https://unpkg.com/lucide@latest"></script>
         <link
-            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400&display=swap"
             rel="stylesheet"
         />
 
         <style>
             :root {
-                --primary: #00f2ff;
-                --bg: #050505;
+                --neon: #00f3ff;
+                --plasma: #bc13fe;
+                --void: #030005;
             }
+
             body {
-                font-family: "Plus Jakarta Sans", sans-serif;
-                background: var(--bg);
-                color: white;
+                background-color: var(--void);
+                color: #fff;
+                font-family: "Space Grotesk", sans-serif;
                 overflow-x: hidden;
+                cursor: none;
+            }
+
+            /* --- VISUAL FX --- */
+            .overlay-grain {
+                position: fixed;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E");
+                pointer-events: none;
+                z-index: 9998;
+                mix-blend-mode: overlay;
+            }
+
+            .overlay-vignette {
+                position: fixed;
+                inset: 0;
+                background: radial-gradient(
+                    circle at center,
+                    transparent 0%,
+                    rgba(0, 0, 0, 0.8) 100%
+                );
+                pointer-events: none;
+                z-index: 9997;
+            }
+
+            /* --- CURSOR --- */
+            #cursor {
+                position: fixed;
+                width: 20px;
+                height: 20px;
+                border: 1px solid var(--neon);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                z-index: 10000;
+                transition: width 0.3s, height 0.3s;
+                mix-blend-mode: difference;
+            }
+            #cursor-dot {
+                position: fixed;
+                width: 4px;
+                height: 4px;
+                background: var(--neon);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                z-index: 10001;
+            }
+
+            /* --- GLITCH TYPOGRAPHY (FIXED) --- */
+            .hero-glitch {
+                font-family: "Syncopate", sans-serif;
+                font-weight: 700;
+                font-size: 11vw; /* Slightly reduced to fit better */
+                line-height: 0.9;
+                letter-spacing: -0.05em;
+                text-transform: uppercase;
+                background: linear-gradient(to bottom, #fff, #888);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                position: relative;
+
+                /* THE FIX: Prevents line breaking */
+                white-space: nowrap;
+                display: inline-block;
+            }
+
+            /* Text Stroke Effect for 'The Future' */
+            .text-stroke {
+                -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+                -webkit-text-fill-color: white;
+                background: none;
+            }
+            .text-stroke:hover {
+                -webkit-text-fill-color: white;
+            }
+
+            /* --- 3D CARDS --- */
+            .holo-card {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                transform-style: preserve-3d;
+                transition: border-color 0.3s;
+            }
+            .holo-content {
+                transform: translateZ(30px);
+            }
+            .holo-card:hover {
+                border-color: var(--neon);
+                box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
+            }
+
+            /* --- BOOT SCREEN --- */
+            #boot-screen {
+                position: fixed;
+                inset: 0;
+                background: #000;
+                z-index: 10002;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                padding: 40px;
             }
             canvas {
                 position: fixed;
                 top: 0;
                 left: 0;
                 z-index: -1;
-                pointer-events: none;
             }
-
             .mono {
                 font-family: "JetBrains Mono", monospace;
-            }
-            .glass {
-                background: rgba(255, 255, 255, 0.02);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                backdrop-filter: blur(15px);
-            }
-
-            /* Preloader */
-            #loader {
-                position: fixed;
-                inset: 0;
-                background: #000;
-                z-index: 9999;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .hero-title {
-                font-size: 13vw;
-                line-height: 0.8;
-                letter-spacing: -0.05em;
-                font-weight: 800;
-            }
-
-            .magnetic {
-                display: inline-block;
-                transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-            }
-
-            .bento-grid {
-                display: grid;
-                grid-template-columns: repeat(12, 1fr);
-                gap: 1.5rem;
-            }
-
-            /* Project Scanning Effect */
-            .scan-card::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(
-                    to bottom,
-                    transparent 50%,
-                    rgba(0, 242, 255, 0.05) 50%
-                );
-                background-size: 100% 4px;
-                z-index: 1;
-                pointer-events: none;
-                opacity: 0.3;
-            }
-
-            .tag {
-                font-size: 9px;
-                font-weight: 800;
-                letter-spacing: 0.2em;
-                padding: 4px 12px;
-                border-radius: 99px;
-                background: rgba(0, 242, 255, 0.1);
-                color: var(--primary);
-                border: 1px solid rgba(0, 242, 255, 0.2);
-                text-transform: uppercase;
             }
         </style>
     </head>
     <body>
-        <!-- Splash Screen -->
-        <div id="loader">
+        <!-- LAYERS -->
+        <div id="cursor"></div>
+        <div id="cursor-dot"></div>
+        <div class="overlay-grain"></div>
+        <div class="overlay-vignette"></div>
+        <canvas id="warp-drive"></canvas>
+
+        <!-- LOADING SCREEN -->
+        <div id="boot-screen">
             <div
-                class="mono text-cyan-400 text-xs mb-4 uppercase tracking-[0.5em] animate-pulse"
-            >
-                Initializing System...
-            </div>
-            <div class="w-48 h-[2px] bg-white/10 overflow-hidden">
-                <div id="progress" class="h-full bg-cyan-400 w-0"></div>
+                id="terminal-output"
+                class="mono text-cyan-500 text-xs space-y-1"
+            ></div>
+            <div class="w-full h-1 bg-white/10 mt-6 relative overflow-hidden">
+                <div
+                    id="boot-bar"
+                    class="absolute h-full bg-cyan-400 w-0"
+                ></div>
             </div>
         </div>
 
-        <!-- Interactive Background -->
-        <canvas id="particleCanvas"></canvas>
-
-        <!-- Nav -->
+        <!-- NAV -->
         <nav
-            class="fixed top-0 w-full z-50 px-10 py-8 flex justify-between items-center mix-blend-difference"
+            class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference"
         >
-            <div class="mono text-[10px] font-bold tracking-widest uppercase">
-                SANTOON<span class="text-cyan-400"> KUMAR PANDA</span>
+            <div
+                class="mono text-[20px] font-bold tracking-[0.2em] uppercase text-white hover:text-cyan-400 transition cursor-none"
+            >
+                SANTOON KUMAR PANDA
             </div>
-            <div class="flex gap-10">
+            <div class="flex gap-8">
                 <a
-                    href="#work"
-                    class="magnetic text-[10px] font-bold uppercase tracking-widest hover:text-cyan-400 transition"
-                    >Portfolio</a
+                    href="#projects"
+                    class="mono text-[10px] uppercase tracking-widest hover:text-cyan-400 transition cursor-none nav-link"
+                    >[ Projects ]</a
                 >
                 <a
                     href="mailto:santoonofficial123@gmail.com"
-                    class="magnetic text-[10px] font-bold uppercase tracking-widest hover:text-cyan-400 transition underline underline-offset-8 decoration-cyan-500"
-                    >Connect</a
+                    class="mono text-[10px] uppercase tracking-widest hover:text-cyan-400 transition cursor-none nav-link"
+                    >[ Encrypted_Comms ]</a
                 >
             </div>
         </nav>
 
-        <main class="relative z-10 px-6">
-            <!-- HERO SECTION -->
+        <main class="relative z-10 px-4 md:px-8">
+            <!-- HERO -->
             <section
                 class="min-h-screen flex flex-col justify-center items-center text-center"
             >
-                <div class="hero-content">
-                    <div
-                        class="mono text-cyan-500 text-[10px] tracking-[0.4em] mb-12 uppercase opacity-0"
-                        id="hero-tag"
+                <div
+                    class="mono text-cyan-400 text-xs tracking-[0.5em] mb-8 opacity-0 reveal-text"
+                >
+                    SYSTEM ARCHITECT // 2026
+                </div>
+
+                <h1
+                    class="hero-glitch opacity-0 reveal-text"
+                    data-value="ENGINEERING"
+                >
+                    ENGINEERING
+                </h1>
+                <h1
+                    class="hero-glitch text-stroke opacity-0 reveal-text"
+                    data-value="THE FUTURE"
+                >
+                    THE FUTURE
+                </h1>
+
+                <div
+                    class="mt-16 max-w-2xl text-gray-400 text-lg leading-relaxed opacity-0 reveal-text font-light"
+                >
+                    Santoon Kumar Panda. Building high-velocity
+                    <span class="text-white font-bold">Machine Learning</span>
+                    pipelines and
+                    <span class="text-white font-bold"
+                        >Next-Gen Architectures</span
                     >
-                        Full-Stack Engineer // Machine Learning
+                    at GRIET.
+                </div>
+
+                <div class="mt-12 flex gap-6 opacity-0 reveal-text">
+                    <a
+                        href="https://github.com/Santoon123"
+                        class="px-8 py-4 border border-white/20 mono text-xs uppercase hover:bg-white hover:text-black transition tracking-widest nav-link"
+                        >GitHub_Repo</a
+                    >
+                    <a
+                        href="https://www.linkedin.com/in/santoon-kumar-panda/"
+                        class="px-8 py-4 border border-cyan-500/50 text-cyan-400 mono text-xs uppercase hover:bg-cyan-500 hover:text-black hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition tracking-widest nav-link"
+                        >LinkedIn_Link</a
+                    >
+                </div>
+            </section>
+
+            <!-- STATS -->
+            <section
+                class="max-w-7xl mx-auto mb-40 grid grid-cols-2 md:grid-cols-4 gap-4"
+            >
+                <div class="holo-card p-8 rounded-xl tilt-element">
+                    <div class="holo-content">
+                        <div
+                            class="mono text-[9px] text-gray-500 uppercase tracking-widest mb-2"
+                        >
+                            LeetCode.Stats
+                        </div>
+                        <div
+                            class="text-5xl font-bold text-white tracking-tighter"
+                        >
+                            1780
+                        </div>
+                        <div class="w-full h-[2px] bg-white/10 mt-4">
+                            <div class="h-full bg-orange-500 w-[85%]"></div>
+                        </div>
                     </div>
-                    <h1
-                        class="hero-title select-none opacity-0 translate-y-20"
-                        id="main-title"
-                    >
-                        ENGINEERING <br />
-                        <span
-                            class="text-transparent"
-                            style="
-                                -webkit-text-stroke: 1px
-                                    rgba(255, 255, 255, 0.3);
-                            "
-                            >THE</span
+                </div>
+                <div class="holo-card p-8 rounded-xl tilt-element">
+                    <div class="holo-content">
+                        <div
+                            class="mono text-[9px] text-gray-500 uppercase tracking-widest mb-2"
                         >
-                        FUTURE.
-                    </h1>
-                    <div
-                        class="mt-20 flex flex-col items-center opacity-0"
-                        id="hero-footer"
-                    >
-                        <p
-                            class="max-w-xl text-gray-500 text-lg leading-relaxed mb-10"
+                            CodeChef.Rank
+                        </div>
+                        <div
+                            class="text-5xl font-bold text-white tracking-tighter"
                         >
-                            Santoon Kumar Panda — Proactive developer at GRIET.
-                            Building high-performance architectures and
-                            intelligent systems.
-                        </p>
-                        <div class="flex gap-6">
-                            <a
-                                href="https://github.com/Santoon123"
-                                class="magnetic glass p-5 rounded-2xl hover:bg-white hover:text-black transition duration-500"
-                                ><i data-lucide="github"></i
-                            ></a>
-                            <a
-                                href="https://www.linkedin.com/in/santoon-kumar-panda/"
-                                class="magnetic glass p-5 rounded-2xl hover:bg-white hover:text-black transition duration-500"
-                                ><i data-lucide="linkedin"></i
-                            ></a>
+                            1666
+                        </div>
+                        <div class="w-full h-[2px] bg-white/10 mt-4">
+                            <div class="h-full bg-yellow-500 w-[78%]"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="holo-card p-8 rounded-xl tilt-element">
+                    <div class="holo-content">
+                        <div
+                            class="mono text-[9px] text-gray-500 uppercase tracking-widest mb-2"
+                        >
+                            Academic.CGPA
+                        </div>
+                        <div
+                            class="text-5xl font-bold text-cyan-400 tracking-tighter"
+                        >
+                            9.42
+                        </div>
+                        <div class="w-full h-[2px] bg-white/10 mt-4">
+                            <div class="h-full bg-cyan-400 w-[94%]"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="holo-card p-8 rounded-xl tilt-element">
+                    <div class="holo-content">
+                        <div
+                            class="mono text-[9px] text-gray-500 uppercase tracking-widest mb-2"
+                        >
+                            Codeforces
+                        </div>
+                        <div
+                            class="text-5xl font-bold text-white tracking-tighter"
+                        >
+                            1320
+                        </div>
+                        <div class="w-full h-[2px] bg-white/10 mt-4">
+                            <div class="h-full bg-blue-600 w-[60%]"></div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- DASHBOARD (RATING STATS) -->
-            <section class="max-w-7xl mx-auto mb-60 grid md:grid-cols-4 gap-4">
+            <!-- PROJECTS -->
+            <section id="projects" class="max-w-7xl mx-auto pb-40">
                 <div
-                    class="glass p-10 rounded-[2rem] border-white/5 group hover:border-cyan-500/50 transition-all duration-700"
+                    class="flex items-end justify-between mb-20 border-b border-white/10 pb-8"
                 >
-                    <div class="mono text-gray-600 text-[9px] uppercase mb-4">
-                        LeetCode
-                    </div>
-                    <div class="text-5xl font-extrabold tracking-tighter">
-                        1780
-                    </div>
-                    <div class="h-1 w-full bg-white/5 mt-6 overflow-hidden">
-                        <div class="h-full bg-orange-500 w-[85%]"></div>
-                    </div>
-                </div>
-                <div
-                    class="glass p-10 rounded-[2rem] border-white/5 group hover:border-cyan-500/50 transition-all duration-700"
-                >
-                    <div class="mono text-gray-600 text-[9px] uppercase mb-4">
-                        CodeChef
-                    </div>
-                    <div class="text-5xl font-extrabold tracking-tighter">
-                        1666
-                    </div>
-                    <div class="h-1 w-full bg-white/5 mt-6 overflow-hidden">
-                        <div class="h-full bg-yellow-500 w-[78%]"></div>
-                    </div>
-                </div>
-                <div
-                    class="glass p-10 rounded-[2rem] border-white/5 group hover:border-cyan-500/50 transition-all duration-700"
-                >
-                    <div class="mono text-gray-600 text-[9px] uppercase mb-4">
-                        CGPA
-                    </div>
-                    <div
-                        class="text-5xl font-extrabold tracking-tighter text-cyan-400"
+                    <h2
+                        class="text-6xl md:text-8xl font-bold tracking-tighter opacity-80"
                     >
-                        9.42
-                    </div>
-                    <div class="h-1 w-full bg-white/5 mt-6 overflow-hidden">
-                        <div class="h-full bg-cyan-400 w-[94%]"></div>
-                    </div>
-                </div>
-                <div
-                    class="glass p-10 rounded-[2rem] border-white/5 group hover:border-cyan-500/50 transition-all duration-700"
-                >
-                    <div class="mono text-gray-600 text-[9px] uppercase mb-4">
-                        Codeforces
-                    </div>
-                    <div class="text-5xl font-extrabold tracking-tighter">
-                        1320
-                    </div>
-                    <div class="h-1 w-full bg-white/5 mt-6 overflow-hidden">
-                        <div class="h-full bg-blue-500 w-[60%]"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PROJECT BENTO -->
-            <section id="work" class="max-w-7xl mx-auto pb-60">
-                <div class="mb-20 flex justify-between items-end">
-                    <h2 class="text-6xl font-black tracking-tighter">
-                        SELECTED <br />
-                        <span class="italic text-white/20">ARCHITECTURES</span>
+                        SELECTED<br />WORKS
                     </h2>
-                    <div class="mono text-[10px] text-cyan-500 font-bold mb-4">
-                        [ SCROLL TO DISCOVER ]
+                    <div class="mono text-xs text-cyan-500 animate-pulse">
+                        /// SCROLL_DETECTED
                     </div>
                 </div>
 
-                <div class="bento-grid">
-                    <!-- JPMC CARD -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- JPMC -->
                     <div
-                        class="col-span-12 md:col-span-8 glass p-16 rounded-[4rem] relative overflow-hidden group scan-card h-[600px] flex flex-col justify-between"
+                        class="md:col-span-8 holo-card rounded-3xl p-10 md:p-14 tilt-element relative overflow-hidden group min-h-[500px] flex flex-col justify-between"
                     >
-                        <div class="relative z-10">
-                            <div class="tag mb-8 inline-block">
-                                JPMorgan Hackathon Winner
+                        <div class="holo-content relative z-10">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div
+                                    class="w-2 h-2 bg-green-500 rounded-full animate-ping"
+                                ></div>
+                                <span
+                                    class="mono text-xs text-green-400 uppercase tracking-widest"
+                                    >JPMorgan Winner 2025</span
+                                >
                             </div>
                             <h3
-                                class="text-6xl font-extrabold tracking-tighter italic leading-none mb-6"
+                                class="text-4xl md:text-6xl font-bold leading-none mb-6"
                             >
                                 FARMER <br />
                                 OUTREACH
                             </h3>
-                            <p
-                                class="text-gray-400 text-lg max-w-sm leading-relaxed"
-                            >
-                                Scaling microfinance data entry and donor
-                                portals for 1000+ farmers across Northeast
-                                India.
+                            <p class="text-gray-400 max-w-md text-lg">
+                                Scalable platform managing 1000+ farmer records
+                                for Northeast India using React & MongoDB.
                             </p>
                         </div>
-                        <div class="flex gap-4 relative z-10">
+                        <div class="holo-content relative z-10 flex gap-4 mt-8">
                             <span
-                                class="mono text-[10px] text-white/30 tracking-widest uppercase"
-                                >React.js</span
+                                class="px-4 py-2 border border-white/10 rounded-full mono text-[10px] uppercase"
+                                >React</span
                             >
                             <span
-                                class="mono text-[10px] text-white/30 tracking-widest uppercase"
-                                >MongoDB</span
-                            >
-                            <span
-                                class="mono text-[10px] text-white/30 tracking-widest uppercase"
+                                class="px-4 py-2 border border-white/10 rounded-full mono text-[10px] uppercase"
                                 >Twilio</span
                             >
                         </div>
                         <div
-                            class="absolute top-10 right-10 opacity-10 group-hover:opacity-100 transition duration-1000"
+                            class="absolute -right-20 top-20 opacity-10 group-hover:opacity-20 transition duration-500"
                         >
                             <i
-                                data-lucide="award"
-                                class="w-32 h-32 text-cyan-400"
+                                data-lucide="trophy"
+                                class="w-96 h-96 text-cyan-400 rotate-12"
                             ></i>
                         </div>
                     </div>
 
                     <!-- CAB PREDICTION -->
                     <div
-                        class="col-span-12 md:col-span-4 glass p-12 rounded-[4rem] flex flex-col justify-between border-white/5 hover:border-white/20 transition-all group"
+                        class="md:col-span-4 holo-card rounded-3xl p-10 tilt-element relative overflow-hidden group flex flex-col justify-between"
                     >
-                        <div>
-                            <div class="tag mb-8 inline-block">ML Pipeline</div>
-                            <h3
-                                class="text-3xl font-bold tracking-tight mb-4 uppercase"
+                        <div class="holo-content relative z-10">
+                            <div
+                                class="mono text-xs text-blue-400 uppercase tracking-widest mb-6"
                             >
-                                Cab Demand Prediction
+                                /// ML_PIPELINE
+                            </div>
+                            <h3 class="text-3xl font-bold leading-tight mb-4">
+                                CAB DEMAND<br />FORECAST
                             </h3>
-                            <p class="text-gray-500 text-sm italic">
-                                81% Accuracy across 265 NYC Zones.
+                            <div class="text-5xl font-bold text-white/20 mb-2">
+                                81%
+                            </div>
+                            <p
+                                class="text-gray-500 text-xs uppercase tracking-widest"
+                            >
+                                Accuracy on NYC Data
                             </p>
                         </div>
                         <a
                             href="https://github.com/Santoon123/cab-demand-prediction"
-                            class="magnetic w-16 h-16 glass rounded-full flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-black transition duration-500"
+                            class="holo-content w-16 h-16 rounded-full border border-white/20 flex items-center justify-center hover:bg-cyan-500 hover:text-black transition duration-300 nav-link"
                         >
                             <i data-lucide="arrow-up-right"></i>
                         </a>
@@ -333,181 +401,215 @@
 
                     <!-- GRAPH VIZ -->
                     <div
-                        class="col-span-12 glass p-16 rounded-[4rem] flex flex-col md:flex-row items-center gap-20 group relative overflow-hidden"
+                        class="md:col-span-12 holo-card rounded-3xl p-10 md:p-14 tilt-element relative overflow-hidden flex flex-col md:flex-row items-center gap-12 group"
                     >
-                        <div class="flex-1 relative z-10">
-                            <div class="tag mb-8 inline-block">
-                                Algorithm Tool
-                            </div>
+                        <div class="holo-content flex-1 z-10">
+                            <span
+                                class="mono text-xs text-purple-400 uppercase tracking-widest"
+                                >/// ALGORITHM_ENGINE</span
+                            >
                             <h3
-                                class="text-5xl font-black tracking-tighter mb-6 uppercase"
+                                class="text-5xl md:text-7xl font-bold mt-4 mb-6"
                             >
-                                Graph Visualizer
+                                GRAPH<br />VISUALIZER
                             </h3>
-                            <p
-                                class="text-gray-400 max-w-xl text-lg leading-relaxed"
-                            >
-                                Visualizing DFS, BFS, and Shortest Path logic
-                                with high-performance Cytoscape.js rendering.
-                                Built to solve logic debugging in complex data
-                                structures.
+                            <p class="text-gray-400 text-lg max-w-2xl">
+                                Interactive React engine using Cytoscape.js.
+                                Visualizes BFS, DFS, and Shortest Path traversal
+                                in real-time. Designed to deconstruct complex
+                                logic for developers.
                             </p>
+                            <a
+                                href="https://github.com/Santoon123/Graph-Visualizer"
+                                class="inline-flex items-center gap-2 mt-8 mono text-xs uppercase border-b border-cyan-500 pb-1 text-cyan-400 hover:text-white transition nav-link"
+                            >
+                                View Source Code
+                                <i
+                                    data-lucide="chevron-right"
+                                    class="w-3 h-3"
+                                ></i>
+                            </a>
                         </div>
                         <div
-                            class="w-full md:w-1/3 aspect-video glass rounded-[2.5rem] border-white/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-700"
+                            class="holo-content w-full md:w-1/3 aspect-video rounded-xl border border-white/10 bg-black/50 flex items-center justify-center relative overflow-hidden group-hover:border-cyan-500/30 transition duration-500"
                         >
                             <div
-                                class="text-cyan-500/20 text-[10rem] font-black italic select-none"
+                                class="text-cyan-500 font-bold mono text-xl z-10"
                             >
-                                ALGO
+                                DEV_MODE
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- FOOTER COMMAND TERMINAL -->
-            <footer class="max-w-7xl mx-auto pb-20">
+            <footer
+                class="py-20 text-center relative z-10 border-t border-white/5"
+            >
                 <div
-                    class="glass rounded-[3rem] p-20 flex flex-col items-center text-center"
+                    class="mono text-xs text-gray-500 uppercase tracking-[0.5em] mb-4"
                 >
-                    <h2
-                        class="text-4xl font-black mb-10 tracking-tighter italic"
-                    >
-                        READY TO BUILD?
-                    </h2>
-                    <div class="flex flex-wrap justify-center gap-12">
-                        <a
-                            href="mailto:santoonofficial123@gmail.com"
-                            class="magnetic text-xs font-bold uppercase tracking-[0.4em] border-b-2 border-cyan-500 pb-2"
-                            >Send Message</a
-                        >
-                        <a
-                            href="#"
-                            class="magnetic text-xs font-bold uppercase tracking-[0.4em] opacity-40 hover:opacity-100 transition"
-                            >Download CV</a
-                        >
-                    </div>
-                    <div
-                        class="mt-20 mono text-[8px] text-gray-700 uppercase tracking-[1em]"
-                    >
-                        Engineered by Santoon Kumar Panda &copy; 2025
-                    </div>
+                    End of Line
                 </div>
+                <a
+                    href="mailto:santoonofficial123@gmail.com"
+                    class="text-2xl font-bold hover:text-cyan-400 transition nav-link"
+                    >santoonofficial123@gmail.com</a
+                >
             </footer>
         </main>
 
         <script>
-            // Init Lucide
-            lucide.createIcons();
+            // --- BOOT SEQUENCE ---
+            const terminal = document.getElementById("terminal-output");
+            const bootBar = document.getElementById("boot-bar");
+            const bootScreen = document.getElementById("boot-screen");
+            const logs = [
+                "Initializing Kernel...",
+                "Loading Modules: REACT, TAILWIND...",
+                "Connecting to GitHub API...",
+                "ACCESS GRANTED.",
+            ];
+            let logIndex = 0;
 
-            // 1. Particle Canvas Engine
-            const canvas = document.getElementById("particleCanvas");
+            function addLog() {
+                if (logIndex < logs.length) {
+                    const p = document.createElement("div");
+                    p.textContent = `> ${logs[logIndex]}`;
+                    terminal.appendChild(p);
+                    logIndex++;
+                    gsap.to(bootBar, {
+                        width: `${(logIndex / logs.length) * 100}%`,
+                        duration: 0.2,
+                    });
+                    setTimeout(addLog, 250);
+                } else {
+                    gsap.to(bootScreen, {
+                        y: "-100%",
+                        duration: 0.8,
+                        ease: "power4.inOut",
+                        delay: 0.5,
+                    });
+                    startIntro();
+                }
+            }
+            setTimeout(addLog, 500);
+
+            // --- CURSOR LOGIC ---
+            const cursor = document.getElementById("cursor");
+            const cursorDot = document.getElementById("cursor-dot");
+            const navLinks = document.querySelectorAll(".nav-link");
+
+            window.addEventListener("mousemove", (e) => {
+                gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+                gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0 });
+            });
+
+            navLinks.forEach((link) => {
+                link.addEventListener("mouseenter", () =>
+                    gsap.to(cursor, { scale: 3, borderColor: "#fff" })
+                );
+                link.addEventListener("mouseleave", () =>
+                    gsap.to(cursor, { scale: 1, borderColor: "#00f3ff" })
+                );
+            });
+
+            // --- HACKER TEXT EFFECT (FIXED) ---
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+            document.querySelectorAll(".hero-glitch").forEach((header) => {
+                header.addEventListener("mouseover", (event) => {
+                    let iterations = 0;
+                    const interval = setInterval(() => {
+                        event.target.innerText = event.target.innerText
+                            .split("")
+                            .map((letter, index) => {
+                                if (index < iterations)
+                                    return event.target.dataset.value[index];
+                                return letters[
+                                    Math.floor(Math.random() * letters.length)
+                                ];
+                            })
+                            .join("");
+                        if (iterations >= event.target.dataset.value.length)
+                            clearInterval(interval);
+                        iterations += 1 / 3;
+                    }, 30);
+                });
+            });
+
+            // --- 3D TILT ---
+            document.querySelectorAll(".tilt-element").forEach((card) => {
+                card.addEventListener("mousemove", (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.transform = `perspective(1000px) rotateX(${
+                        ((y - rect.height / 2) / rect.height / 2) * -10
+                    }deg) rotateY(${
+                        ((x - rect.width / 2) / rect.width / 2) * 10
+                    }deg)`;
+                });
+                card.addEventListener("mouseleave", () => {
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
+                });
+            });
+
+            // --- WARP BACKGROUND ---
+            const canvas = document.getElementById("warp-drive");
             const ctx = canvas.getContext("2d");
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            let particles = [];
+            let stars = [],
+                speed = 2;
 
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 1.5;
-                    this.speedX = Math.random() * 0.5 - 0.25;
-                    this.speedY = Math.random() * 0.5 - 0.25;
-                }
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    if (this.x > canvas.width) this.x = 0;
-                    if (this.x < 0) this.x = canvas.width;
-                    if (this.y > canvas.height) this.y = 0;
-                    if (this.y < 0) this.y = canvas.height;
-                }
-                draw() {
-                    ctx.fillStyle = "rgba(0, 242, 255, 0.2)";
+            for (let i = 0; i < 400; i++)
+                stars.push({
+                    x: Math.random() * canvas.width - canvas.width / 2,
+                    y: Math.random() * canvas.height - canvas.height / 2,
+                    z: Math.random() * canvas.width,
+                });
+
+            function animateWarp() {
+                ctx.fillStyle = "rgba(3, 0, 5, 0.4)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                stars.forEach((star) => {
+                    star.z -= speed;
+                    if (star.z <= 0) {
+                        star.z = canvas.width;
+                        star.x =
+                            Math.random() * canvas.width - canvas.width / 2;
+                        star.y =
+                            Math.random() * canvas.height - canvas.height / 2;
+                    }
+                    let x = (star.x / star.z) * canvas.width + canvas.width / 2;
+                    let y =
+                        (star.y / star.z) * canvas.height + canvas.height / 2;
+                    let size = (canvas.width / star.z) * 1.5;
+                    ctx.fillStyle =
+                        "rgba(255,255,255," + (1 - star.z / canvas.width) + ")";
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
                     ctx.fill();
-                }
-            }
-
-            function init() {
-                for (let i = 0; i < 150; i++) particles.push(new Particle());
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach((p) => {
-                    p.update();
-                    p.draw();
                 });
-                requestAnimationFrame(animate);
+                requestAnimationFrame(animateWarp);
             }
-            init();
-            animate();
+            animateWarp();
 
-            // 2. Preloader Logic
-            let progress = 0;
-            const progBar = document.getElementById("progress");
-            const interval = setInterval(() => {
-                progress += Math.random() * 20;
-                progBar.style.width = progress + "%";
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    gsap.to("#loader", {
-                        opacity: 0,
-                        duration: 1,
-                        delay: 0.5,
-                        onComplete: () => {
-                            document.getElementById("loader").style.display =
-                                "none";
-                            startHeroAnimation();
-                        },
-                    });
-                }
-            }, 150);
+            window.addEventListener(
+                "mousemove",
+                (e) => (speed = 2 + (e.clientX / window.innerWidth) * 10)
+            );
 
-            // 3. Hero Animation
-            function startHeroAnimation() {
-                const tl = gsap.timeline();
-                tl.to("#hero-tag", { opacity: 1, y: 0, duration: 1 })
-                    .to(
-                        "#main-title",
-                        { opacity: 1, y: 0, duration: 1.5, ease: "expo.out" },
-                        "-=0.5"
-                    )
-                    .to("#hero-footer", { opacity: 1, duration: 1 }, "-=1");
-            }
-
-            // 4. Magnetic Effect Logic
-            const magnetics = document.querySelectorAll(".magnetic");
-            magnetics.forEach((el) => {
-                el.addEventListener("mousemove", (e) => {
-                    const pos = el.getBoundingClientRect();
-                    const x = e.clientX - pos.left - pos.width / 2;
-                    const y = e.clientY - pos.top - pos.height / 2;
-                    el.style.transform = `translate(${x * 0.3}px, ${
-                        y * 0.3
-                    }px)`;
-                });
-                el.addEventListener("mouseleave", () => {
-                    el.style.transform = `translate(0px, 0px)`;
-                });
-            });
-
-            // 5. GSAP Scroll Animations
-            gsap.registerPlugin(ScrollTrigger);
-            gsap.utils.toArray(".glass").forEach((card) => {
-                gsap.from(card, {
-                    scrollTrigger: { trigger: card, start: "top 90%" },
-                    opacity: 0,
-                    y: 50,
-                    duration: 1,
+            function startIntro() {
+                lucide.createIcons();
+                gsap.to(".reveal-text", {
+                    y: 0,
+                    opacity: 1,
+                    stagger: 0.1,
+                    duration: 1.5,
                     ease: "power4.out",
                 });
-            });
+            }
         </script>
     </body>
 </html>
-
